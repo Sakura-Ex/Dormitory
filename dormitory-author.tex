@@ -1,0 +1,65 @@
+%% 该文类基于 article 改动而来
+%% 该文类内部调用了 float,caption,geometry,xparse 宏包，请不要再次调用，以免出现不可预知的问题
+\documentclass[ctex]{dormitory} % 使用 ctex 选项以适应中文，仍需使用 ctex 宏包
+\usepackage[heading]{ctex}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb,lastpage,ulem}
+\usepackage{array,tabularx,tabulary,mhchem,xspace}
+\usepackage{multirow,bigstrut}
+\usepackage{siunitx,booktabs,longtable,graphicx,xfrac}
+\usepackage{circuitikz,nameref}
+\usepackage[colorlinks=true,linkcolor=black, urlcolor=blue, citecolor=blue]{hyperref}
+% \articlename{Yangyue} % Left pagefoot. Default is 'Dormitory'
+% \articlesubname{Reviews Polymer} % Left pagefoot too. Default is empty
+
+\themename{某个实验报告}
+\themelabel{实验名称}
+\subjectname{experiment 实验报告} % the cover title and center pagehead
+\author{杨越} % \author 命令由于在文类 article 已给出，故不使用 \newcovercontent 定义，且该标签固定显示
+
+%% \newcovercontent{name}[total length][label][content][label length]
+%% \newcovercontent{名称}[总长][标签名][内容][标签长度]
+%% 使用此命令自定义封面标签。
+%%
+%% 使用该命令时，会自动定义命令‘\名称’，如\newcovercontent{xyzaaa}会自动定义命令 \xyzaaa，
+%% 此时可使用命令‘\名称’定义内容，使用命令‘\名称’后该标签显示。
+%%
+%% 当可选参数给出一个或两个时，该标签不显示（即没有给出内容，如：\newcovercontent{名称}[总长][标签名]），
+%% 但\newcovercontent{名称}[总长][标签名][] 会使标签显示。
+%%
+%% '总长'有三种使用方式：1、'h'，半行长（190pt）；2、'f'，整行长（400pt）；3、直接输入长度。
+%% 当 '总长' 大于 200pt 时，该标签会强制另起一行。
+%%
+%% '标签长度'：当标签的自然长度大于定义的长度时，使用自然长度，否则使用定义的长度。
+%% 使用文类的 ctex 选项后此默认值为 56pt（四个汉字），否则默认值为 0pt（即使用自然长度）。
+%%
+%% 标签在封面的顺序与命令给出的顺序一致。
+%%
+%% 在正文区使用 \makecover 以显示封面
+\newcovercontent{studentid}[h][学号][55542348]
+\newcovercontent{classname}[h][班级][]
+\newcovercontent{cooperator}[h][合作者]
+\newcovercontent{tableNo}[h][桌号][][78pt]
+\newcovercontent{expdate}[h][实验日期]
+\newcovercontent{teacher}[f][指导教师]
+
+% \classname{123}
+% \expdate{\today}
+\cooperator{长离}
+\tableNo{78}
+\teacher{张三、李四}
+\show\document
+
+\begin{document}
+\makecover % Use this command to make cover
+
+\pagestyle{dorm}
+\begin{multicols}{2}
+    \begin{figure*}\centering
+    \rule{15cm}{176pt} %  Please set Image height=16n pt (e.g. 96pt, 112pt, 160pt). and textwidth is 525pt
+    \caption{{\bf 一张漆黑的图片}. 这是一张漆黑的图片，完美展示了“无光之美”。它不仅让你体验到深沉的空虚感，还能让你思考：是不是漏了个灯泡？或者这只是宇宙的方式在告诉我们，“现在是休息时间”。无论如何，这幅图将会让你重新定义“看不见”的艺术。}
+    \end{figure*}
+\input{testtext.tex}
+\end{multicols}
+
+\end{document}
