@@ -15,7 +15,7 @@
 \themename{某个实验报告}
 \themelabel{实验名称}
 \subjectname{experiment 实验报告} % the cover title and center pagehead
-\author{杨越} % \author 命令由于在文类 article 已给出，故不使用 \newcovercontent 定义，且该标签固定显示
+\author{杨越} % 由于 \author 命令在文类 article 已给出，故不使用 \newcovercontent 定义，且该标签固定显示
 
 %% \newcovercontent{name}[total length][label][content][label length]
 %% \newcovercontent{名称}[总长][标签名][内容][标签长度]
@@ -29,6 +29,7 @@
 %%
 %% '总长'有三种使用方式：1、'h'，半行长（190pt）；2、'f'，整行长（400pt）；3、直接输入长度。
 %% 当 '总长' 大于 200pt 时，该标签会强制另起一行。
+%% 需要使用 \authorlabellength 定义 author 的'总长'
 %%
 %% '标签长度'：当标签的自然长度大于定义的长度时，使用自然长度，否则使用定义的长度。
 %% 使用文类的 ctex 选项后此默认值为 56pt（四个汉字），否则默认值为 0pt（即使用自然长度）。

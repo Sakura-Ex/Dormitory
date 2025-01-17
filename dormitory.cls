@@ -33,6 +33,34 @@
   \setlength\footskip{28\p@}
 \fi
 
+% Define some constant
+\def\@articlename{Dormitory}
+\def\@articlesubname{}
+\def\@subjectname{Article}
+\def\articlename#1{\gdef\@articlename{#1}}
+\def\articlesubname#1{\gdef\@articlesubname{#1}}
+\def\subjectname#1{\gdef\@subjectname{#1}}
+
+% Define a cover
+\def\@themename{Theme name}
+\def\@themelabel{Theme}
+\def\themename#1{\gdef\@themename{#1}}
+\def\themelabel#1{\gdef\@themelabel{#1}}
+
+\def\author@label{Author}
+
+\def\label@style{\sf}
+\def\content@style{\relax}
+
+\if@ctex@use
+\def\author@label{作者}
+\def\label@style{\sf\heiti}
+\def\content@style{\kaishu}
+\fi
+
+\def\linewidthrule{\hrule\@height0.4\p@\@width\linewidth}
+\def\textwidthrule{\hrule\@height0.4\p@\@width\textwidth}
+
 \newlength\@labellength
 %\@infobox{totallength}{label}{text}[labellength]
 \def\@infobox#1#2#3{\@ifnextchar{[}{\@infoboxa{#1}{#2}{#3}}{\@infoboxa{#1}{#2}{#3}[0pt]}}
@@ -81,6 +109,8 @@
   \expandafter\setlength\csname #1@labellength\endcsname{\@defaultlabellength}%
   \expandafter\setlength\csname #1@boxlength\endcsname{\@halfinfolength}%
 }
+\def\author@labellength{190\p@}
+\def\authorlabellength{\if f#1 400\p@ \else \if h#1 190\p@ \else #1 \fi\fi}
 
 \newcommand\makecover{%
   \setcounter{page}{0}
@@ -111,65 +141,6 @@
   
   \newpage
 }
-
-% Define some constant
-\def\@articlename{Dormitory}
-\def\@articlesubname{}
-\def\@subjectname{Article}
-\def\articlename#1{\gdef\@articlename{#1}}
-\def\articlesubname#1{\gdef\@articlesubname{#1}}
-\def\subjectname#1{\gdef\@subjectname{#1}}
-
-% Define a cover
-\def\@themename{Theme name}
-\def\@themelabel{Theme}
-\def\themename#1{\gdef\@themename{#1}}
-\def\themelabel#1{\gdef\@themelabel{#1}}
-% \def\@classname{Class 1}
-% \def\@studentid{12345678}
-
-% \newcovercontent{studentid}[h]
-% \newcovercontent{classname}[h]
-% \newcovercontent{cooperator}[h]
-% \newcovercontent{tableid}[h]
-% \newcovercontent{expdate}[h]
-% \newcovercontent{teacher}[f]
-
-% \def\classname#1{\gdef\@classname{#1}}
-% \def\studentid#1{\gdef\@studentid{#1}}
-% Nullable information
-% \newif\if@havecooperator
-% \newif\if@havetableid
-% \newif\if@haveteacher
-% \newif\if@haveexpdate
-% \def\@cooperator    {}
-% \def\@tableid       {}
-% \def\@teacher       {}
-% \def\@expdate       {}
-% \def\cooperator#1   {\gdef\@cooperator{#1}\@havecooperatortrue}
-% \def\tableid#1      {\gdef\@tableid{#1}\@havetableidtrue}
-% \def\teacher#1      {\gdef\@teacher{#1}\@haveteachertrue}
-% \def\expdate#1      {\gdef\@expdate{#1}\@haveexpdatetrue}
-
-% \def\studentid@label    {Student ID}
-\def\author@label       {Author}
-% \def\classname@label    {Class}
-% \def\cooperator@label   {Cooperator}
-% \def\tableid@label      {Table No.}
-% \def\expdate@label      {Exp. Date}
-% \def\teacher@label      {Teacher}
-
-\def\label@style{\sf}
-\def\content@style{\relax}
-
-\if@ctex@use
-\def\author@label       {作者}
-\def\label@style{\sf\heiti}
-\def\content@style{\kaishu}
-\fi
-
-\def\linewidthrule{\hrule\@height0.4\p@\@width\linewidth}
-\def\textwidthrule{\hrule\@height0.4\p@\@width\textwidth}
 
 % Define pagestyle 'dorm'
 \def\ps@dorm{%
