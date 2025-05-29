@@ -1,6 +1,6 @@
 %% 该文类基于 article 改动而来
 %% 该文类内部调用了 float,caption,geometry,xparse 宏包，请不要再次调用，以免出现不可预知的问题
-\documentclass[ctex]{dormitory} % 使用 ctex 选项以适应中文，仍需使用 ctex 宏包
+\documentclass[ctex]{dormitory}
 \usepackage[heading]{ctex}
 \usepackage{multicol}
 \usepackage{amsmath,amssymb,lastpage,ulem}
@@ -14,8 +14,7 @@
 
 \themename{某个实验报告}
 \themelabel{实验名称}
-\subjectname{experiment 实验报告} % the cover title and center pagehead
-\author{杨越} % 由于 \author 命令在文类 article 已给出，故不使用 \newcovercontent 定义，且该标签固定显示
+\subjectname{experiment 实验报告} %% the cover title and center pagehead
 
 %% \newcovercontent{name}[total length][label][content][label length]
 %% \newcovercontent{名称}[总长][标签名][内容][标签长度]
@@ -37,6 +36,7 @@
 %% 标签在封面的顺序与命令给出的顺序一致。
 %%
 %% 在正文区使用 \makecover 以显示封面
+\newcovercontent{Author}[h][姓名][帅哥]
 \newcovercontent{studentid}[h][学号][55542348]
 \newcovercontent{classname}[h][班级][]
 \newcovercontent{cooperator}[h][合作者]
@@ -54,12 +54,6 @@
 \makecover % Use this command to make cover
 
 \pagestyle{dorm}
-\begin{multicols}{2}
-    \begin{figure*}\centering
-    \rule{15cm}{176pt} %  Please set Image height=16n pt (e.g. 96pt, 112pt, 160pt). and textwidth is 525pt
-    \caption{{\bf 一张漆黑的图片}. 这是一张漆黑的图片，完美展示了“无光之美”。它不仅让你体验到深沉的空虚感，还能让你思考：是不是漏了个灯泡？或者这只是宇宙的方式在告诉我们，“现在是休息时间”。无论如何，这幅图将会让你重新定义“看不见”的艺术。}
-    \end{figure*}
-\input{testtext.tex}
-\end{multicols}
 
+\input{testtext.tex}
 \end{document}
