@@ -3,6 +3,7 @@
               [2025/04/29 v1.0 Cover Style by SakuraEx]
 
 \newif\if@ctex@use
+
 \DeclareOption{ctex}{\@ctex@usetrue}
 \DeclareOption*{}
 
@@ -23,13 +24,10 @@
 \def\@themelabel{Theme}
 \def\themelabel#1{\gdef\@themelabel{#1}}
 
-
-\def\author@label{Author}
 \def\label@style{\sf}
 \def\content@style{\relax}
 
 \if@ctex@use
-\def\author@label{作者}
 \def\label@style{\sf\heiti}
 \def\content@style{\kaishu}
 \fi
@@ -97,9 +95,7 @@
           \hbadness=10000%
           \fontsize{14\p@}{14\p@}\linespread{2.2}\selectfont%
           \@infobox{\linewidth}{\@themelabel}{\@themename}\vspace{20pt} %
-          % \@infobox{190\p@}{\author@label}{\@author}[\@defaultlabellength]\hfill %
           \@cover@info%
-          %\show\@cover@info%
           \parbox[b]{190\p@}{\mbox{}}\hbadness=1000 %
         \end{minipage}%
       }%
