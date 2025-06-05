@@ -1,0 +1,188 @@
+\@ifundefined{ExplLoaderFileDate}
+  {\RequirePackage{expl3}}
+  {}
+\@ifl@t@r\ExplLoaderFileDate{2022-11-09}
+  {}
+  {%
+    \PackageError{SEcover}{Support package expl3 too old}
+      {%
+        You need to update your installation of 'l3kernel'.\MessageBreak
+        Loading~SEcover~will~abort!%
+      }%
+    \endinput
+  }%
+\ProvidesExplPackage {SEcover-v3} {2025-05-31} {2.0.0}
+  {A cover style created by SakuraEx}
+%<@@=SEcover>
+\providecommand \IfFormatAtLeastTF { \@ifl@t@r \fmtversion }
+\dim_new:N \l__SEcover_cover_text_width_dim
+\dim_new:N \l__SEcover_label_length_dim
+\dim_new:N \l__SEcover_half_info_length_dim
+\dim_new:N \l__SEcover_full_info_length_dim
+\tl_new:N \l__SEcover_label_font_tl
+\tl_new:N \l__SEcover_contents_font_tl
+\cs_new_protected:Npn \__SEcover_set_base_format:nnn #1#2#3
+  {
+    \dim_set:Nn \l__SEcover_label_length_dim {#1}
+    \tl_set:Nn \l__SEcover_label_font_tl {#2}
+    \tl_set:Nn \l__SEcover_contents_font_tl {#3}
+  }
+\cs_new_protected:Npn \__SEcover_base_format_from_lang:n #1
+  {
+    \str_case:nnF { #1 }
+      {
+        { zh-cn }
+          {
+            \@ifpackageloaded { ctex }
+              { }
+              {
+                \RequirePackage { ctex }
+              }
+            \__SEcover_set_base_format:nnn { 56pt } { \sf\heiti } { \kaishu }
+          }
+      }
+      {
+        \__SEcover_set_base_format:nnn { 0pt } { \sf } { \relax }
+      }
+  }
+\keys_define:nn { SEcover-v3 }
+  {
+    language .code:n =
+      \__SEcover_base_format_from_lang:n {#1} ,
+    text-width .dim_set:N =
+      \l__SEcover_cover_text_width_dim ,
+    label-length .dim_set:N =
+      \l__SEcover_label_length_dim ,
+    label-font .tl_set:N =
+      \l__SEcover_label_font_tl ,
+    contents-font .tl_set:N =
+      \l__SEcover_contents_font_tl ,
+    total-length .dim_set:N =
+      \l__SEcover_total_length_dim
+  }
+\keys_set:nn { SEcover-v3 }
+  {
+    language = en-us ,
+    text-width = 400pt
+  }
+\IfFormatAtLeastTF { 2022-06-01 }
+  { \ProcessKeyOptions [ SEcover-v3 ] }
+  {
+    \RequirePackage { l3keys2e }
+    \ProcessKeysOptions { SEcover-v3 }
+  }
+\IfFormatAtLeastTF { 2020-10-01 }
+  { }
+  {
+    \RequirePackage { xparse }
+    \providecommand \ExpandArgs [1]
+      { \cs_if_exist_use:c { exp_args:N #1 } }
+  }
+\seq_new:N \l__SEcover_cover_info_seq
+\cs_new_protected:Npn \__SEcover_infobox:nn #1#2
+  {
+    \group_begin:
+      \hbox_set:Nn \l_tmpa_box
+          {
+            \fontsize{14\p@}{14\p@} \selectfont \l__SEcover_label_font_tl #1
+          }
+      \dim_set:Nn \l_tmpa_dim
+        {
+          \dim_compare:nTF
+          { \box_wd:N \l_tmpa_box < \l__SEcover_label_length_dim }
+          { \l__SEcover_label_length_dim }
+          { \box_wd:N \l_tmpa_box }
+        }
+        % 测量标签的自然宽度，如果大于设置的 label-length 则直接使用标签的自然宽度作为标签的宽度，否则使用 label-length 作为标签的宽度。
+      \dim_set:Nn \l_tmpb_dim { \l__SEcover_total_length_dim - \l_tmpa_dim }
+      \mbox
+        {
+          \parbox[b] { \dim_use:N \l_tmpa_dim }
+            {
+              \leavevmode\makebox[ \dim_use:N \l_tmpa_dim ][s]
+                {
+                  \l__SEcover_label_font_tl #1
+                }
+              \rlap
+                {
+                  \rule[ -3.3pt ] { \dim_use:N \l_tmpb_dim } { 0.4pt }
+                }
+            }
+          \parbox[b] { \dim_use:N \l_tmpb_dim }  
+            {
+              \centering \leavevmode \l__SEcover_contents_font_tl #2
+            }
+        }
+    \group_end:
+  }
+\cs_new_protected:Npn \__SEcover_create_info_box:nn #1#2
+  {
+    \group_begin:
+      \dim_compare:nTF 
+        { \l__SEcover_total_length_dim > \l__SEcover_cover_text_width_dim / 2 }
+        { \seq_gput_right:Nn \l__SEcover_cover_info_seq { \newline } }
+        { }
+      \seq_gput_right:Nn \l__SEcover_cover_info_seq
+        {
+          \__SEcover_infobox:nn {#1} {#2}
+        }
+    \group_begin:
+  }
+\NewDocumentCommand \newcovercontent { O { } m m O { 400pt }}
+  {
+    \group_begin:
+      \keys_set:nn { SEcover-v3 } {#1}
+      \keys_set:nn { SEcover-v3 }
+        {
+          total-length = #4
+        }
+      \__SEcover_create_info_box:nn {#2} {#3}
+    \group_end:
+  }
+\NewDocumentCommand \newcovercontentH { O { } m m }
+  {
+    \group_begin:
+      \keys_set:nn { SEcover-v3 } {#1}
+      \keys_set:nn { SEcover-v3 }
+        {
+          total-length = \l__SEcover_cover_text_width_dim / 2 - 10pt
+        }
+      \__SEcover_create_info_box:nn {#2} {#3}
+    \group_end:
+  }
+\providecommand \makecover {%
+  \setcounter{page}{0}
+  \thispagestyle{empty}
+  \newpage
+  \mbox{}
+  \vspace{80pt}
+  \begin{center}
+    \begin{minipage}{400\p@}
+      \parbox[b] { \linewidth }
+        {
+          \fontsize{24\p@}{24\p@} \selectfont \l__SEcover_label_font_tl \centering \leavevmode subjectname%\@subjectname
+        }
+        \vspace{123pt}\\
+        \hbox to \linewidth {
+        \begin{minipage}{\linewidth}
+          \hbadness=10000
+          \fontsize{14\p@}{14\p@}\linespread{2.2}\selectfont
+          \group_begin:
+            \keys_set:nn { SEcover-v3 }
+              {
+                total-length = \linewidth
+              }
+            \__SEcover_infobox:nn {themelabel} {themename}
+          \group_end:
+          \vspace{20pt} \\
+          \seq_use:Nn \l__SEcover_cover_info_seq { \hfill }
+          \hfill
+          \parbox[b]{190\p@}{\mbox{}}
+          \hbadness=1000 
+        \end{minipage}
+      }
+    \end{minipage}
+  \end{center}
+  \let\makecover\relax
+  \newpage
+}
