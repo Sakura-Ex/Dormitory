@@ -16,54 +16,70 @@
 %<@@=SEcover>
 \providecommand \IfFormatAtLeastTF { \@ifl@t@r \fmtversion }
 \dim_new:N \l__SEcover_cover_text_width_dim
-\dim_new:N \l__SEcover_label_length_dim
-\dim_new:N \l__SEcover_half_info_length_dim
-\dim_new:N \l__SEcover_full_info_length_dim
-\tl_new:N \l__SEcover_label_font_tl
-\tl_new:N \l__SEcover_contents_font_tl
-\cs_new_protected:Npn \__SEcover_set_base_format:nnn #1#2#3
+\dim_new:N \l__SEcover_default_label_length_dim
+\tl_new:N \l__SEcover_default_label_font_tl
+\fp_new:N \l__SEcover_default_label_font_size_fp
+\tl_new:N \l__SEcover_default_content_font_tl
+\fp_new:N \l__SEcover_default_content_font_size_fp
+\fp_new:N \l__SEcover_default_line_spacing_fp
+\cs_new:Npn \__SEcover_set_base_format:nnn #1#2#3
   {
-    \dim_set:Nn \l__SEcover_label_length_dim {#1}
-    \tl_set:Nn \l__SEcover_label_font_tl {#2}
-    \tl_set:Nn \l__SEcover_contents_font_tl {#3}
+    \dim_set:Nn \l__SEcover_default_label_length_dim {#1}
+    \tl_set:Nn \l__SEcover_default_label_font_tl {#2}
+    \tl_set:Nn \l__SEcover_default_content_font_tl {#3}
+    \tl_put_left:Nn \l__SEcover_default_label_font_tl { \fontsize{14 pt}{14 pt} \selectfont }
+    \tl_put_left:Nn \l__SEcover_default_content_font_tl { \fontsize{14 pt}{14 pt} \selectfont }
   }
-\cs_new_protected:Npn \__SEcover_base_format_from_lang:n #1
+\cs_new:Npn \__SEcover_latin_base_format: { \__SEcover_set_base_format:nnn { 0pt } { \sf } { \relax } }
+\cs_new:Npn \__SEcover_chinese_base_format:
   {
-    \str_case:nnF { #1 }
-      {
-        { zh-cn }
-          {
-            \@ifpackageloaded { ctex }
-              { }
-              {
-                \RequirePackage { ctex }
-              }
-            \__SEcover_set_base_format:nnn { 56pt } { \sf\heiti } { \kaishu }
-          }
-      }
-      {
-        \__SEcover_set_base_format:nnn { 0pt } { \sf } { \relax }
-      }
+    \@ifpackageloaded { ctex }
+      { }
+      { \RequirePackage { ctex } }
+    \__SEcover_set_base_format:nnn { 56pt } { \sf\heiti } { \kaishu }
   }
 \keys_define:nn { SEcover-v3 }
   {
-    language .code:n =
-      \__SEcover_base_format_from_lang:n {#1} ,
-    text-width .dim_set:N =
-      \l__SEcover_cover_text_width_dim ,
-    label-length .dim_set:N =
-      \l__SEcover_label_length_dim ,
-    label-font .tl_set:N =
-      \l__SEcover_label_font_tl ,
-    contents-font .tl_set:N =
-      \l__SEcover_contents_font_tl ,
-    total-length .dim_set:N =
-      \l__SEcover_total_length_dim
+    language .choice:,
+    language / en-us .code:n = \__SEcover_latin_base_format:,
+    language / zh-cn .code:n = \__SEcover_chinese_base_format:,
+    language / zh-hk .code:n = \__SEcover_chinese_base_format:,
+    language / zh-tw .code:n = \__SEcover_chinese_base_format:,
+    language / unknown .code:n =
+      {
+        \__SEcover_latin_base_format:
+        \msg_warning:nneee { SEcover-v3 } { unknown-language }
+        { en-us , zh-cn , zh-hk , zh-tw }
+        { \exp_not:n {#1} }
+      },
+    language .default:n = en-us
   }
-\keys_set:nn { SEcover-v3 }
+\msg_new:nnnn { SEcover-v3 } { unknown-language }
   {
-    language = en-us ,
-    text-width = 400pt
+    The~language~#2~is~not~supported.~Use~'en-us'~instead.
+  }
+  {
+    #1
+  }
+\keys_define:nn { SEcover-v3 }
+  {
+    text-width .dim_set:N =
+      \l__SEcover_cover_text_width_dim,
+    text-width .default:n = { 400 pt },
+    label-length .dim_set:N =
+      \l__SEcover_default_label_length_dim,
+    label-font .tl_set:N =
+      \l__SEcover_default_label_font_tl,
+    label-font-size .fp_set:N =
+      \l__SEcover_default_label_font_size_fp,
+    total-length .dim_set:N =
+      \l__SEcover_default_total_length_dim,
+    contents-font .tl_set:N =
+      \l__SEcover_default_content_font_tl,
+    contents-font-size .fp_set:N =
+      \l__SEcover_default_content_font_size_fp,
+    line-spacing .fp_set:N =
+      \l__SEcover_default_line_spacing_fp
   }
 \IfFormatAtLeastTF { 2022-06-01 }
   { \ProcessKeyOptions [ SEcover-v3 ] }
@@ -79,110 +95,105 @@
       { \cs_if_exist_use:c { exp_args:N #1 } }
   }
 \seq_new:N \l__SEcover_cover_info_seq
-\cs_new_protected:Npn \__SEcover_infobox:nn #1#2
+\int_new:N \l__SEcover_box_count_int
+\int_set:Nn \l__SEcover_box_count_int { 1 }
+\cs_new:Npn \__SEcover_inner_variable:nn #1#2
+  { l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _#2_#1 }
+\cs_new:Npn \__SEcover_info_box:nnnn #1#2#3#4
   {
-    \group_begin:
-      \hbox_set:Nn \l_tmpa_box
-          {
-            \fontsize{14\p@}{14\p@} \selectfont \l__SEcover_label_font_tl #1
-          }
-      \dim_set:Nn \l_tmpa_dim
-        {
-          \dim_compare:nTF
-          { \box_wd:N \l_tmpa_box < \l__SEcover_label_length_dim }
-          { \l__SEcover_label_length_dim }
-          { \box_wd:N \l_tmpa_box }
-        }
-        % 测量标签的自然宽度，如果大于设置的 label-length 则直接使用标签的自然宽度作为标签的宽度，否则使用 label-length 作为标签的宽度。
-      \dim_set:Nn \l_tmpb_dim { \l__SEcover_total_length_dim - \l_tmpa_dim }
-      \mbox
-        {
-          \parbox[b] { \dim_use:N \l_tmpa_dim }
-            {
-              \leavevmode\makebox[ \dim_use:N \l_tmpa_dim ][s]
-                {
-                  \l__SEcover_label_font_tl #1
-                }
-              \rlap
-                {
-                  \rule[ -3.3pt ] { \dim_use:N \l_tmpb_dim } { 0.4pt }
-                }
-            }
-          \parbox[b] { \dim_use:N \l_tmpb_dim }  
-            {
-              \centering \leavevmode \l__SEcover_contents_font_tl #2
-            }
-        }
-    \group_end:
+    \dim_set:Nn \l_tmpb_dim { #4 - #3 }
+    \hbox to #4
+      {
+        \hb@xt@ #3 { \l__SEcover_default_label_font_tl #1 }
+        \rlap { \rule[ -3.3pt ] { \l_tmpb_dim } { 0.4pt } }
+        \hb@xt@ \l_tmpb_dim { \hss \l__SEcover_default_content_font_tl #2 \hss }
+      }
   }
+\cs_generate_variant:Nn \__SEcover_info_box:nnnn { nnvv }
 \cs_new_protected:Npn \__SEcover_create_info_box:nn #1#2
   {
-    \group_begin:
-      \dim_compare:nTF 
-        { \l__SEcover_total_length_dim > \l__SEcover_cover_text_width_dim / 2 }
-        { \seq_gput_right:Nn \l__SEcover_cover_info_seq { \newline } }
-        { }
-      \seq_gput_right:Nn \l__SEcover_cover_info_seq
-        {
-          \__SEcover_infobox:nn {#1} {#2}
-        }
-    \group_begin:
+    \bool_if:nT
+      {
+        \dim_compare_p:nNn
+          { \cs:w \__SEcover_inner_variable:nn { dim } { total } \cs_end: }
+          >
+          { \l__SEcover_cover_text_width_dim / 2 }
+        &&
+        \int_compare_p:nNn { \l__SEcover_box_count_int } > { 1 }
+      }
+      { \newline }
+    \hbox_set:Nn \l_tmpa_box { \l__SEcover_default_label_font_tl #1 }
+    \dim_set_eq:cN { \__SEcover_inner_variable:nn { dim } { label } } \l__SEcover_default_label_length_dim
+    \dim_set:Nn \l_tmpb_dim { \cs:w \__SEcover_inner_variable:nn { dim } { label } \cs_end: }
+    \dim_set:cn { \__SEcover_inner_variable:nn { dim } { label } }
+      {
+        \dim_compare:nNnTF
+        { \box_wd:N \l_tmpa_box } < { \l_tmpb_dim }
+        { \l_tmpb_dim }
+        { \box_wd:N \l_tmpa_box }
+      }
+      % 测量标签的自然宽度，如果大于设置的 label-length 则直接使用标签的自然宽度作为标签的宽度，否则使用 label-length 作为标签的宽度。
+    \__SEcover_info_box:nnvv {#1} {#2}
+      { \__SEcover_inner_variable:nn { dim } { label } }
+      { \__SEcover_inner_variable:nn { dim } { total } }
+    \int_incr:N \l__SEcover_box_count_int 
   }
-\NewDocumentCommand \newcovercontent { O { } m m O { 400pt }}
+\NewDocumentCommand \newcovercontent { O { } m m o }
   {
-    \group_begin:
-      \keys_set:nn { SEcover-v3 } {#1}
-      \keys_set:nn { SEcover-v3 }
-        {
-          total-length = #4
-        }
-      \__SEcover_create_info_box:nn {#2} {#3}
-    \group_end:
+    \dim_set_eq:NN \l__SEcover_default_total_length_dim \l__SEcover_cover_text_width_dim
+    \keys_set:nn { SEcover-v3 } {#1}
+    \dim_new:c { \__SEcover_inner_variable:nn { dim } { total } }
+    \dim_new:c { \__SEcover_inner_variable:nn { dim } { label } }
+    \tl_new:c { \__SEcover_inner_variable:nn { tl } { label_font } }
+    \tl_new:c { \__SEcover_inner_variable:nn { tl } { content_font } }
+    \IfNoValueTF {#4}
+    {
+      \dim_set_eq:cN
+        { \__SEcover_inner_variable:nn { dim } { total } }
+        \l__SEcover_default_total_length_dim
+    }
+    {
+      \dim_set:cn
+        { \__SEcover_inner_variable:nn { dim } { total } }
+        {#4}
+    }
+    \seq_gput_right:Nn \l__SEcover_cover_info_seq
+      { \__SEcover_create_info_box:nn {#2} {#3} }
+    \int_incr:N \l__SEcover_box_count_int
   }
 \NewDocumentCommand \newcovercontentH { O { } m m }
-  {
-    \group_begin:
-      \keys_set:nn { SEcover-v3 } {#1}
-      \keys_set:nn { SEcover-v3 }
-        {
-          total-length = \l__SEcover_cover_text_width_dim / 2 - 10pt
-        }
-      \__SEcover_create_info_box:nn {#2} {#3}
-    \group_end:
+  { 
+    \dim_set:Nn \l_tmpb_dim { \l__SEcover_cover_text_width_dim / 2 - 10pt }
+    \newcovercontent[#1]{#2}{#3}[ \l_tmpb_dim ]
   }
+\providecommand \coversep { \seq_gput_right:Nn \l__SEcover_cover_info_seq { \vspace{20pt} } }
 \providecommand \makecover {%
+  \int_set:Nn \l__SEcover_box_count_int { 1 }
   \setcounter{page}{0}
   \thispagestyle{empty}
   \newpage
   \mbox{}
   \vspace{80pt}
   \begin{center}
-    \begin{minipage}{400\p@}
+    \begin{minipage}{400pt}
       \parbox[b] { \linewidth }
+        { \l__SEcover_default_label_font_tl \fontsize{24pt}{24pt} \selectfont  \centering \leavevmode subjectname }%\@subjectname
+      \vspace{123pt}\\
+      \hbox to \linewidth
         {
-          \fontsize{24\p@}{24\p@} \selectfont \l__SEcover_label_font_tl \centering \leavevmode subjectname%\@subjectname
+          \begin{minipage}{\linewidth}
+            \hbadness=10000
+            \fontsize{14pt}{14pt}\linespread{2.2}\selectfont\leavevmode
+            \seq_use:Nn \l__SEcover_cover_info_seq { \hfill }
+            \hfill
+            \parbox[b]{190pt}{\mbox{}}
+            \hbadness=1000 
+          \end{minipage}
         }
-        \vspace{123pt}\\
-        \hbox to \linewidth {
-        \begin{minipage}{\linewidth}
-          \hbadness=10000
-          \fontsize{14\p@}{14\p@}\linespread{2.2}\selectfont
-          \group_begin:
-            \keys_set:nn { SEcover-v3 }
-              {
-                total-length = \linewidth
-              }
-            \__SEcover_infobox:nn {themelabel} {themename}
-          \group_end:
-          \vspace{20pt} \\
-          \seq_use:Nn \l__SEcover_cover_info_seq { \hfill }
-          \hfill
-          \parbox[b]{190\p@}{\mbox{}}
-          \hbadness=1000 
-        \end{minipage}
-      }
     \end{minipage}
   \end{center}
   \let\makecover\relax
   \newpage
 }
+\newcovercontent{themelabel}{themename}
+\coversep

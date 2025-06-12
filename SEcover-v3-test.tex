@@ -1,0 +1,157 @@
+\documentclass{article}
+%\usepackage[language = zh-cn]{SEcover-v3}
+\usepackage{geometry}
+%\usepackage{siunitx}
+\usepackage[heading]{ctex}
+
+\geometry{
+    top=20.4mm, 
+    left=15mm, 
+    right=15mm, 
+    bottom=20mm,
+    headsep=5.9mm,
+}
+\makeatletter
+\ExplSyntaxOn
+%\debug_on:n {check-declarations}
+\dim_new:N \l__SEcover_cover_text_width_dim
+\dim_new:N \l__SEcover_label_length_dim
+\dim_new:N \l__SEcover_infobox_total_length_dim
+\tl_new:N \l__SEcover_label_font_tl
+\tl_new:N \l__SEcover_contents_font_tl
+\cs_new_protected:Npn \__SEcover_set_base_format:nnn #1#2#3
+  {
+    \dim_set:Nn \l__SEcover_label_length_dim {#1}
+    \tl_set:Nn \l__SEcover_label_font_tl {#2}
+    \tl_set:Nn \l__SEcover_contents_font_tl {#3}
+  }
+\__SEcover_set_base_format:nnn { 56pt } { \sf\heiti } { \kaishu }
+\dim_set:Nn \l__SEcover_cover_text_width_dim { 400pt } 
+\seq_new:N \l__SEcover_cover_info_seq
+\int_new:N \l__SEcover_box_count_int
+\int_set:Nn \l__SEcover_box_count_int { 1 }
+\cs_new_protected:Npn \__SEcover_info_box:nnnn #1#2#3#4
+  {
+    \hbox
+      {
+        \hb@xt@ #3
+          {
+            \l__SEcover_label_font_tl #1
+          }
+        \rlap
+          {
+            \rule[ -3.3pt ] { #4 } { 0.4pt }
+          }
+        \hb@xt@ #4
+          {
+            \hss \l__SEcover_contents_font_tl #2 \hss
+          }
+      }
+  }
+\cs_generate_variant:Nn \__SEcover_info_box:nnnn { nnvv }
+\cs_new_protected:Npn \__SEcover_info_box_create:nn #1#2
+  {
+    \bool_if:nT
+      { 
+        \dim_compare_p:n
+          { \l__SEcover_infobox_total_length_dim > \l__SEcover_cover_text_width_dim / 2 }
+        &&
+        ! \seq_if_empty_p:N \l__SEcover_cover_info_seq
+      }
+      { \seq_gput_right:Nn \l__SEcover_cover_info_seq { \newline } }
+    \hbox_set:Nn \l_tmpa_box
+      {
+        \fontsize{14pt}{14pt} \selectfont \l__SEcover_label_font_tl #1
+      }
+    \int_show:n { \str_count:n { 一二三 }}
+    \dim_set:Nn \l_tmpa_dim
+      {
+        \dim_compare:nTF
+        { \box_wd:N \l_tmpa_box < \l__SEcover_label_length_dim }
+        { \l__SEcover_label_length_dim }
+        { \box_wd:N \l_tmpa_box }
+      }
+    \dim_show:N \l_tmpa_dim
+    % 测量标签的自然宽度，如果大于设置的 label-length 则直接使用标签的自然宽度作为标签的宽度，否则使用 label-length 作为标签的宽度。
+    \dim_set:Nn \l_tmpb_dim { \l__SEcover_infobox_total_length_dim - \l_tmpa_dim }
+    \dim_new:c { l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _label_dim }
+    \dim_new:c { l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _content_dim }
+    \dim_set_eq:cN
+      {
+        l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _label_dim
+      } \l_tmpa_dim
+    \dim_set_eq:cN
+      {
+        l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _content_dim
+      } \l_tmpb_dim
+    \seq_gput_right:Ne \l__SEcover_cover_info_seq
+      {
+        \__SEcover_info_box:nnvv { \exp_not:n {#1} } { \exp_not:n {#2} }
+          {
+            l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _label_dim
+          }
+          {
+            l__SEcover_info_ \int_to_roman:n { \l__SEcover_box_count_int } _content_dim
+          }
+      }
+    \int_incr:N \l__SEcover_box_count_int
+  }
+\NewDocumentCommand \newcovercontent { O { } m m O { 400pt }}
+  {
+    \dim_set:Nn \l__SEcover_infobox_total_length_dim {#4}
+    \__SEcover_info_box_create:nn {#2} {#3}
+  }
+\NewDocumentCommand \newcovercontentH { O { } m m }
+  {
+    % \dim_set:Nn \l__SEcover_infobox_total_length_dim { \l__SEcover_cover_text_width_dim / 2 - 10pt }
+    % \__SEcover_info_box_create:nn {#2} {#3}
+    \dim_set:Nn \l_tmpb_dim { \l__SEcover_cover_text_width_dim / 2 - 10pt }
+    \IfNoValueTF {#1}
+    { \newcovercontent{#2}{#3}[\l_tmpb_dim] }
+    { \newcovercontent[#1]{#2}{#3}[\l_tmpb_dim] }
+  }
+\providecommand \makecover {%
+  \setcounter{page}{0}
+  \thispagestyle{empty}
+  \newpage
+  \mbox{}
+  \vspace{80pt}
+  \begin{center}
+    \begin{minipage}{400\p@}
+      \parbox[b] { \linewidth }
+        {
+          \fontsize{24\p@}{24\p@} \selectfont \l__SEcover_label_font_tl \centering \leavevmode subjectname%\@subjectname
+        }
+        \vspace{123pt}\\
+        \hbox to \linewidth {
+        \begin{minipage}{\linewidth}
+          \hbadness=10000
+          \fontsize{14\p@}{14\p@}\linespread{2.2}\selectfont
+          \dim_set:Nn \l__SEcover_infobox_total_length_dim { 400pt }
+          \__SEcover_info_box_create:nn {themelabel} {themename 名}
+          \seq_pop_right:NN \l__SEcover_cover_info_seq \l_tmpa_tl
+          \seq_pop_right:NN \l__SEcover_cover_info_seq \l_tmpb_tl
+          \l_tmpa_tl
+          \vspace{20pt} \\
+          \seq_use:Nn \l__SEcover_cover_info_seq { \hfill }
+          \hfill
+          \hb@xt@ 190 pt {\mbox{}}
+          \hbadness=1000
+        \end{minipage}
+      }
+    \end{minipage}
+  \end{center}
+  \let\makecover\relax
+  \newpage
+}
+\ExplSyntaxOff
+\makeatother
+
+\newcovercontent{姓名}{原神}
+\newcovercontentH{学号}{55542348}
+
+\begin{document}
+    \makecover
+    
+
+\end{document}
