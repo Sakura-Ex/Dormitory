@@ -257,7 +257,7 @@
       { \__SEcover_create_info_box:nn {#1} {#2} }
     \int_incr:N \l__SEcover_box_count_int
   }
-\NewDocumentCommand \newcovercontent { s O { } m O { } m O { } O { } }
+\NewDocumentCommand \newcovercontent { s O { } m O { } m O { } o }
   {
     \__SEcover_reset_local:
     \keys_set:nn { SEcover-v3 / local / label } {#2}
@@ -266,11 +266,11 @@
       {
         \keys_set:nn { SEcover-v3 / local / box }
           { total = \l__SEcover_cover_width_dim }
-        \keys_set:nn { SEcover-v3 / local / width }
-          { occupied = \l__SEcover_cover_width_dim }
       }
     \keys_set:nn { SEcover-v3 / local / box } {#6}
-    \keys_set:nn { SEcover-v3 / local / width } {#7}
+    \IfNoValueTF {#7}
+      { \dim_set_eq:NN \l__SEcover_occupied_length_dim \l__SEcover_total_length_dim }
+      { \keys_set:nn { SEcover-v3 / local / width } {#7} }
     \__SEcover_new_cover_content:nn {#3} {#5}
   }
 \DeclareDocumentCommand \SEcoverSetup { m }
