@@ -10,21 +10,17 @@
     headsep=5.9mm,
 }
 
-\SEcoverSetup
-  {
-    cover-width = 500pt
-  }
+
 
 \title{测试封面}
 
 \newcovercontent*{themelabel}{themename}
 \coversep
-\newcovercontent*{姓名}{嘻嘻\& 122}
+\newcovercontent{姓名}{嘻嘻\& 122}[][occupied=100pt]
 \newcovercontent[length=2cm]{学号}{55542348}
 \newcovercontent{学号}{55542348}
 \newcovercontent{学号}{55542348}
 \newcovercontent[length=3cm]{姓名}{嘻嘻}
-
 \begin{document}
     \makecover
 \end{document}
